@@ -38,7 +38,7 @@ estamosRTOS_asm_launch
 ; The SysTick_Handler switches stack pointer spaces
 ; by moving the MSP to the first task's allocated buffer.						
 ;
-; This SysTick Handler code was entirely taken from Jon Valvano's RTOS code.
+; This SysTick Handler code was almost entirely taken from Jon Valvano's RTOS code.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SysTick_Handler                ; Save R0-R3,R12,LR,PC,PSR
     CPSID   I                  ; Prevent interrupt during switch

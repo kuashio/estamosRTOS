@@ -115,9 +115,9 @@ void estamosRTOS_start(){
   SystemCoreClockUpdate();  // These two lines are implementation specific
   SysTick_Config(SystemCoreClock/1000);   // Generate interrupt evey 1 ms 	
 	
-	running->SP = running->buffer+STACK_SIZE;
-	estamosRTOS_asm_launch();
-  running->func();
+	running->SP = running->buffer+STACK_SIZE; // Flush the firts task's stack
+	estamosRTOS_asm_launch();                 // Use the stack of the first task
+  running->func();                          // Call the first task's function
 	
   // La Kawandeep!!!
   // Write your error notifications/assertions here.
