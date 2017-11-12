@@ -26,7 +26,6 @@ Here's a list of recommended customizations prior to attempting to implement est
  - define **`ESTAMOSRTOS_DEBUG`** in your code to add debug information in your code. This includes pushing notable values to the registers in the initial stack frame (0x33333333 for R3 for example). You don't want this for production, as it means more code, but it's sometimes useful for debugging. Look for **`ESTAMOSRTOS_DEBUG`** in the code to learn more. 
 
 
-
 ## Bug report and contact
 kuashio@gmail.com
 
