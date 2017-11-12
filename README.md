@@ -23,9 +23,7 @@ Here's a list of recommended customizations prior to attempting to implement est
 
  - The size of the private stack for your tasks is configurable with the **`ESTAMOSRTOS_STACK_SIZE`** symbol. You may define this in your own code, as it has an **`#ifndef`** guard. It is expressed in 4-byte entries, not in bytes, so the default value of 64 in that symbol means 256 bytes.
 
- - define **`ESTAMOSRTOS_DEBUG`** in your code to add debug information in your code. This includes pushing notable values to the registers in the initial stack frame (0x33333333 for R3 for example). You don't want this for production, as it means more code, but it's sometimes useful for debugging.
-
- 
+ - define **`ESTAMOSRTOS_DEBUG`** in your code to add debug information in your code. This includes pushing notable values to the registers in the initial stack frame (0x33333333 for R3 for example). You don't want this for production, as it means more code, but it's sometimes useful for debugging. Look for **`ESTAMOSRTOS_DEBUG`** in the code to learn more. 
 
 
 
