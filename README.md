@@ -1,12 +1,12 @@
 # estamosRTOS
-######a quick and dirty Real Time Operating System for ARM Cortex M microcontrollers
+###### a quick and dirty Real Time Operating System for ARM Cortex M microcontrollers
 
 This Real Time Operating System, which started as a project in an RTOS graduate class, is intended for educational use, and is supposed to keep evolving over the years.
 
-#Why the silly name?
+## Why the silly name?
 In spanish, RTOS sounds like "fed up", so the author thought it would be appropriate to call his ungodly project "We're Fed Up".
 
-#Adaptation Notes
+## Adaptation Notes
 This project was tested on a [NUCLEO-F303K8](https://os.mbed.com/platforms/ST-Nucleo-F303K8/) platform, which runs on an STMicro ARM Cortex-M4 MCU.
 
 There are several ways to customize estamosRTOS to meet your needs, such as Target MCU, Heap Size, Private Stack Size, etc.
@@ -29,10 +29,10 @@ Here's a list of recommended customizations prior to attempting to implement est
 
 
 
-#Bug report and contact
+## Bug report and contact
 kuashio@gmail.com
 
-#License 
+## License 
 estamosRTOS is distributed under the ***DWYWADC*** license (Do Whatever You Want And Don't Complain).
 
 By using estamosRTOS, you agree to the following terms:
