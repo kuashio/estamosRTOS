@@ -3,6 +3,11 @@
 
 This Real Time Operating System, which started as a project in an RTOS graduate class, is intended for educational use, and is supposed to keep evolving over the years.
 
+Here's what estamosRTOS currently consists of: 
+
+ - A multitasking mechanism with a simple Round Robin scheduler.
+ 
+
 ## Why the silly name?
 In spanish, RTOS sounds like "fed up", so the author thought it would be appropriate to call his ungodly project "We're Fed Up".
 
