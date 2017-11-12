@@ -15,8 +15,8 @@ Here's a list of recommended customizations prior to attempting to implement est
 
 
  - To adapt the code for your own MCU (not the STM32), there are two lines of code you'll want to edit: 
-  - `#include "stm32f303x8.h"` at the beginning of `estamosRTOS.h`. This line has to change to your MCU's .h file.
-  - At about line 115 in `estamosRTOS.h` are the SystemCoreClock functions that start the SysTick timer. You may have to modify these.
+    - `#include "stm32f303x8.h"` at the beginning of `estamosRTOS.h`. This line has to change to your MCU's .h file.
+    - At about line 115 in `estamosRTOS.h` are the SystemCoreClock functions that start the SysTick timer. You may have to modify these.
 
 
  - If you're not planning to use the floating point unit (and also if you are), you should make your toolchain aware of it. This is important because when using the FPU, the context switch performed by the NVIC module includes single precision floating point registers S0 to S15 along with the FPSCR register in the context pushed into the stack, as shown [here](http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0553a/Babefdjc.html) and  [here](http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dai0298a/BCGHEEFD.html). This is not good for two reasons: 1) If you're not using the FPU, you're wasting 18 4-byte register slots in the stack for each context switch, and 2) If you are using the FPU, there are 16 floating point registers you may want to push into the stack each time, and that has to be done explicitly by your code (just like r4-r11 are pushed in the provided code). In KEIL uVision 5, you may select to use or not use the FPU in the **Options** dialog box (launched with the magic wand tool), in the **Target** tab, under **Code Generation**, in the ***Floating Point Hardware*** field.
