@@ -1,15 +1,24 @@
 # estamosRTOS
-###### a quick and dirty Real Time Operating System for ARM Cortex M microcontrollers
+##### a quick and dirty Real Time Operating System for ARM Cortex M microcontrollers
 
-This Real Time Operating System, which started as a project in an RTOS graduate class, is intended for educational use, and is supposed to keep evolving over the years.
+This Real Time Operating System started as a "why not?" project in an RTOS graduate class. It is intended for educational use, and is supposed to keep evolving over time.
 
+## Purpose
+estamosRTOS is not intended to compete with professional RTOSes like freeRTOS, or RTX. Instead, it's intended for education, so it was designed with a simple implementation, putting readability over efficiency.
+The purpose is to allowstudents to read the code and make modifications to it in order to understand the inner workings of the many elements of an RTOS.
+    
+
+## Components
 Here's what estamosRTOS currently consists of: 
 
  - A multitasking mechanism with a simple Round Robin scheduler.
- 
+ - Mutex support.
+ - A basic yield function.
 
-## Why the silly name?
-In spanish, RTOS sounds like "fed up", so the author thought it would be appropriate to call his ungodly project "We're Fed Up".
+## To Do 
+ - Semaphore support.
+ - Inter-Task Communication mechanisms such as message queues, signals, pipes, sockets, etc.
+ - Interrupt support (by using the PendSV handler).
 
 ## Adaptation Notes
 This project was tested on a [NUCLEO-F303K8](https://os.mbed.com/platforms/ST-Nucleo-F303K8/) platform, which runs on an STMicro ARM Cortex-M4 MCU.
@@ -30,6 +39,9 @@ Here's a list of recommended customizations prior to attempting to implement est
 
  - define **`ESTAMOSRTOS_DEBUG`** in your code to add debug information in your code. This includes pushing notable values to the registers in the initial stack frame (0x33333333 for R3 for example). You don't want this for production, as it means more code, but it's sometimes useful for debugging. Look for **`ESTAMOSRTOS_DEBUG`** in the code to learn more. 
 
+
+## Why the silly name?
+In spanish, RTOS sounds like "fed up", so the author thought it would be appropriate to call his ungodly project "We're Fed Up".
 
 ## Bug report and contact
 kuashio@gmail.com

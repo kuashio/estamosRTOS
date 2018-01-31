@@ -27,6 +27,9 @@ task *running;
 // task-count stores the number of active tasks
 static uint16_t task_count;
 
+// yielding serves as a blocking variable while yield is going on
+static uint8_t yielding;
+
 ////////////////////////////////////////////////////////////////////////////////
 // void estamosRTOS_init()
 //
@@ -36,6 +39,7 @@ void estamosRTOS_init(){
 	runqueue=NULL;
 	running=NULL;
 	task_count=0;
+	yielding=0;
 }
 
 
@@ -113,13 +117,16 @@ void estamosRTOS_start(){
 	running=runqueue; // Initializing the running pointer
 	
   SystemCoreClockUpdate();  // These two lines are implementation specific
-  SysTick_Config(SystemCoreClock/1000);   // Generate interrupt evey 1 ms 	
+  //SysTick_Config(SystemCoreClock/1000);   // Generate interrupt evey 1 ms 
+  SysTick_Config(ESTAMOSRTOS_TICKS_TO_SCHEDULER);   // Generate interrupt at selected frequency
+  
+	
 	
 	running->SP = running->buffer+STACK_SIZE; // Flush the firts task's stack
 	estamosRTOS_asm_launch();                 // Use the stack of the first task
   running->func();                          // Call the first task's function
 	
-  // La Kawandeep!!!
+  // This point should never be reached!!!!
   // Write your error notifications/assertions here.
 	//
 	// Execution may reach this point if the first task added returns.
@@ -138,9 +145,35 @@ void estamosRTOS_start(){
 ////////////////////////////////////////////////////////////////////////////////
 
 void estamosRTOS_scheduler(){
+  if (yielding){
+		SysTick_Config(ESTAMOSRTOS_TICKS_TO_SCHEDULER);   // Restore original Tick frequency
+		yielding=0;
+	}
 	running=running->next; // running points to the next TCB
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// void estamosRTOS_yield()
+//
+// C function that yields the CPU to the scheduler
+// This is done in a suboptimal way: By setting the SysTick timer to go off
+// in a few cycles (about 100 ticks). This is done for two reasons:
+//
+//   1) This delay must be short enough to force the SysTick interrupt for the 
+//      scheduler to take control as soon as possible.
+//   2) This delay must be long enough to allow the scheduler to set the SysTick 
+//      back to its original frequency before it goes off again.
+//      
+// This delay is set in the ESTAMOSRTOS_TICK_TO_YIELD symbol.
+////////////////////////////////////////////////////////////////////////////////
+
+void estamosRTOS_yield(){
+  SysTick_Config(ESTAMOSRTOS_TICKS_TO_YIELD);   // Generate interrupt very soon
+	yielding=1;
+	while(yielding);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2017, Eduardo Corpeño
+// Copyright © 2017-2018, Eduardo Corpeño
 ////////////////////////////////////////////////////////////////////////////////////////////////////

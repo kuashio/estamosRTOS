@@ -25,6 +25,7 @@
 
 #define STACK_SIZE ESTAMOSRTOS_STACK_SIZE 
 
+
 typedef uint32_t * pointer;
 typedef void (*t_funcPtr)(void);
 
@@ -44,6 +45,17 @@ struct TCB_NODE{
 
 typedef struct TCB_NODE TCB;
 typedef TCB task;
+
+typedef uint32_t estamosRTOS_mutex;
+
+// These two symbols need to be defined in estamosRTOS_asm.s with the same values!!!!
+#define ESTAMOSRTOS_MUTEX_LOCKED    1
+#define ESTAMOSRTOS_MUTEX_UNLOCKED  0
+// These two symbols need to be defined in estamosRTOS_asm.s with the same values!!!!
+
+#define ESTAMOSRTOS_TICKS_TO_YIELD      80
+//#define ESTAMOSRTOS_TICKS_TO_SCHEDULER (SystemCoreClock/1000) 
+#define ESTAMOSRTOS_TICKS_TO_SCHEDULER (400)  
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -70,9 +82,16 @@ void estamosRTOS_scheduler(void);  // C function that Performs the task switch.
 																 // by moving the MSP to the fits task's allocated buffer.
                                 // The SysTick_Handler is implemented in estamosRTOS_asm.s																 
 
+uint32_t estamosRTOS_mutex_lock(estamosRTOS_mutex *);  // Assembly function that locks a mutex. 
+
+void estamosRTOS_mutex_unlock(estamosRTOS_mutex *);  // Assembly function that unlocks a mutex. 
+
+
+void estamosRTOS_yield(void); // C function that yields the CPU to the scheduler
+
 
 #endif // ESTAMOSRTOS_H
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2017, Eduardo Corpeño
+// Copyright © 2017-2018, Eduardo Corpeño
 ////////////////////////////////////////////////////////////////////////////////////////////////////

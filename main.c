@@ -8,32 +8,77 @@
 
 #include "estamosRTOS.h"
 
-volatile int count1=0, count2=0, count3=0;
+volatile int shared=0, count=0;
+estamosRTOS_mutex my_mutex=0;
+
+#define ITERATIONS 5
 
 void task1(){
   volatile int i=0, j=0;
 	while(1){
-		i++;
-		j=(i%100)?j:j+1;
-		count1=i+j;
+		i=ITERATIONS;
+		while(estamosRTOS_mutex_lock(&my_mutex)){
+			//TODO: Yield();
+			estamosRTOS_yield();
+		}
+		while(i--){	
+			j=(i%10)?j:j+1;
+			shared=i+j;
+		}
+		estamosRTOS_mutex_unlock(&my_mutex);
+		i=20;
+		i=30+j;
+		j=40-i*j;
+		i=j+50;
+		j=60-i*7;
+		i=j+70;
+		i=80;
 	}
 }
 
 void task2(){
   volatile int i=0, j=0;
 	while(1){
-		i++;
-		j=(i%100)?j:j+1;
-		count2=i+j;
+		i=20;
+		i=30+j;
+		j=40-i*j;
+		i=j+50;
+		j=60-i*7;
+		i=j+70;
+		i=80;
+		i=ITERATIONS;
+		while(estamosRTOS_mutex_lock(&my_mutex)){
+			//TODO: Yield();
+			estamosRTOS_yield();
+		}
+		while(i--){	
+			j=(i%10)?j:j+3;
+			shared=i+j;
+		}
+		estamosRTOS_mutex_unlock(&my_mutex);
 	}
 }
 
 void task3(){
   volatile int i=0, j=0;
 	while(1){
-		i++;
-		j=(i%100)?j:j+1;
-		count3=i+j;
+		
+		i=ITERATIONS;
+		if(!estamosRTOS_mutex_lock(&my_mutex)){
+			i=ITERATIONS;
+			while(i--){	
+				j=(i%10)?j:j+5;
+				shared=i+j;
+			}
+			estamosRTOS_mutex_unlock(&my_mutex);
+		}		
+		i=20;
+		i=30+j;
+		j=40-i*j;
+		i=j+50;
+		j=60-i*7;
+		i=j+70;
+		i=80;
 	}
 }
 
@@ -49,7 +94,7 @@ int main(){
 	
 	estamosRTOS_start();
 
-  // La Kawandeep!!!
+  // This point should never be reached!!!!
   // Write your error notifications/assertions here.
 	//
 	// Execution may reach this point if the programmer
@@ -61,6 +106,6 @@ int main(){
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2017, Eduardo Corpeño
+// Copyright © 2017-2018, Eduardo Corpeño
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
