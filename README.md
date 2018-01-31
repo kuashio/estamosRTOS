@@ -46,6 +46,9 @@ In spanish, RTOS sounds like "fed up", so the author thought it would be appropr
 ## Bug report and contact
 kuashio@gmail.com
 
+## Known Bugs 
+The current version does not use the PendSV handler for context switching, and so it has the potential of handling other interrupts while context-switching, resulting in a usage fault
+
 ## License 
 estamosRTOS is distributed under the ***DWYWADC*** license (Do Whatever You Want And Don't Complain).
 
