@@ -333,7 +333,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>MCU_STM32F303X8 ESTAMOSRTOS_LOGIC_ANALYZER</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -350,7 +350,7 @@
             <useXO>0</useXO>
             <uClangAs>0</uClangAs>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--cpreproc</MiscControls>
               <Define></Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
@@ -395,9 +395,14 @@
               <FilePath>.\estamosRTOS.h</FilePath>
             </File>
             <File>
-              <FileName>estamosRTOS_asm.s</FileName>
+              <FileName>estamosRTOS_asm.S</FileName>
               <FileType>2</FileType>
-              <FilePath>.\estamosRTOS_asm.s</FilePath>
+              <FilePath>.\estamosRTOS_asm.S</FilePath>
+            </File>
+            <File>
+              <FileName>estamosRTOS_MCU.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\estamosRTOS_MCU.h</FilePath>
             </File>
           </Files>
         </Group>

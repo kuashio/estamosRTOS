@@ -7,30 +7,27 @@
 ;//
 ;// enjoy!
 ;//
-;// Copyright © 2017, Eduardo Corpeño
+;// Copyright © 2017-2018, Eduardo Corpeño
 ;////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "estamosRTOS_MCU.h"
+	
 	PRESERVE8 
 	THUMB
 
     AREA    |.text|, CODE, READONLY 
-
-    EXPORT  SysTick_Handler
+    EXPORT  PendSV_Handler
+    EXPORT  SVC_Handler
     EXPORT  estamosRTOS_asm_launch
     EXPORT  estamosRTOS_mutex_lock
     EXPORT  estamosRTOS_mutex_unlock
     IMPORT  estamosRTOS_scheduler
     IMPORT  running
-		
-	EXPORT  ESTAMOSRTOS_MUTEX_LOCKED
-	EXPORT  ESTAMOSRTOS_MUTEX_UNLOCKED
+	IMPORT  SVC_Handler_C    
 
-; These two symbols need to be defined in estamosRTOS.h with the same values!!!!
-ESTAMOSRTOS_MUTEX_LOCKED   EQU 1
-ESTAMOSRTOS_MUTEX_UNLOCKED EQU 0
-; These two symbols need to be defined in estamosRTOS.h with the same values!!!!
-EXIT_SUCCESS EQU 0
-EXIT_FAILURE EQU 1
+;#ifdef ESTAMOSRTOS_LOGIC_ANALYZER
+;    IMPORT  sched
+;#endif	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; estamosRTOS_asm_launch
@@ -45,14 +42,15 @@ estamosRTOS_asm_launch PROC
 	ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; SysTick_Handler
-; The SysTick_Handler switches stack pointer spaces
-; by moving the MSP to the first task's allocated buffer.						
+; PendSV_Handler
+; The PendSV_Handler switches stack pointer spaces
+; by moving the MSP (for now) to the next task's allocated buffer.						
 ;
-; This SysTick Handler code was almost entirely taken from Jon Valvano's RTOS code.
+; This Handler code was almost entirely borrowed from Jon Valvano's RTOS code.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SysTick_Handler    PROC        ; Save R0-R3,R12,LR,PC,PSR
-    CPSID   I                  ; Prevent interrupt during switch
+PendSV_Handler     PROC        ; R0-R3,R12,LR,PC,PSR saved by SysTick or other 
+                               ; tail-chained interrupt/exception.
+;    CPSID   I                  ; Prevent interrupt during switch
     PUSH    {R4-R11}           ; Save remaining regs r4-11
     LDR     R0, =running       ; R0 = pointer to running, old thread
     LDR     R1, [R0]           ; R1 = running
@@ -62,15 +60,22 @@ SysTick_Handler    PROC        ; Save R0-R3,R12,LR,PC,PSR
     POP     {R0,LR}
     LDR     R1, [R0]           ; R1 = running, new thread
     LDR     SP, [R1]           ; new thread SP; SP = running->SP;
+
+;#ifdef ESTAMOSRTOS_LOGIC_ANALYZER
+;	LDR     R4,=0
+;	LDR     R5,=sched
+;	STR		R4,[R5]
+;#endif
+	
     POP     {R4-R11}           ; restore regs r4-11
-    CPSIE   I                  ; tasks run with interrupts enabled
+;    CPSIE   I                  ; tasks run with interrupts enabled
     BX      LR                 ; restore R0-R3,R12,LR,PC,PSR
 
 	ENDP
-		
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; uint32_t estamosRTOS_mutex_lock(estamosRTOS_mutex *);  // Assembly function that locks a mutex. 
+;
 ; estamosRTOS_mutex_lock
 ; Assembly function that attempts to lock a mutex. 
 ; Receives a pointer to an estamosRTOS_mutex.
@@ -108,9 +113,23 @@ estamosRTOS_mutex_unlock PROC
 	ENDP
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SVC_Handler
+; The SVC_Handler copies the calling stack pointer to r0 and calls the 
+; C implementation for the remainder of the handler.						
+;
+; Notice the branch nature of this handler. This is part of the conventions
+; used by the __svc() compiler keyword operations. The return is performed by 
+; the compiler through a pop {...,pc} instruction.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+SVC_Handler
+    TST lr, #4    
+	MRSEQ r0, MSP    
+	MRSNE r0, PSP    
+	B SVC_Handler_C
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	END
 ;////////////////////////////////////////////////////////////////////////////////////////////////////
 ;// Copyright © 2017-2018, Eduardo Corpeño

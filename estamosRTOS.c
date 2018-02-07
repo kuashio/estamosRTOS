@@ -8,7 +8,7 @@
 //
 // enjoy!
 //
-// Copyright © 2017, Eduardo Corpeño
+// Copyright © 2017-2018, Eduardo Corpeño
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 #include "estamosRTOS.h"
@@ -16,7 +16,19 @@
 
 // Change this file for the specific microcontroller
 // Used for SysTick configuration (SystemCoreClock functions)
-#include "stm32f303x8.h"
+
+#ifdef MCU_STM32F303X8
+  #include "stm32f303x8.h"
+#elif defined MCU_SOMEOTHER
+    #error Must include MCU-specific .h file
+#else
+    #error Must include default .h file
+#endif
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global Variables
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // runqueue is the head pointer of the circular TCB linked list used by the scheduler.
 static task *runqueue;
@@ -30,6 +42,11 @@ static uint16_t task_count;
 // yielding serves as a blocking variable while yield is going on
 static uint8_t yielding;
 
+#ifdef ESTAMOSRTOS_LOGIC_ANALYZER
+// sched serves as a watch variable to show scheduler activity in the simulator
+uint8_t sched;
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // void estamosRTOS_init()
 //
@@ -40,6 +57,28 @@ void estamosRTOS_init(){
 	running=NULL;
 	task_count=0;
 	yielding=0;
+	#ifdef ESTAMOSRTOS_LOGIC_ANALYZER
+		sched=0;
+	#endif
+	// Debug block to review priorities in the debugger
+	#ifdef ESTAMOSRTOS_DEBUG
+	  uint32_t pendsv, systick, svc;
+	  pendsv=NVIC_GetPriority(PendSV_IRQn);  
+	  systick=NVIC_GetPriority(SysTick_IRQn);
+	  svc=NVIC_GetPriority(SVCall_IRQn); 
+  #endif 	
+	
+	NVIC_SetPriority(PendSV_IRQn,0xff);  // lowest priority for PendSV
+	NVIC_SetPriority(SysTick_IRQn,0x00); // highest priority for SysTick
+	NVIC_SetPriority(SVCall_IRQn,0x00); // highest priority for SVCall
+  
+	#ifdef ESTAMOSRTOS_DEBUG
+	  pendsv=NVIC_GetPriority(PendSV_IRQn);  
+	  svc=NVIC_GetPriority(SVCall_IRQn);
+	  systick=NVIC_GetPriority(SysTick_IRQn);  
+	  pendsv = SCB->SHP[10];
+    systick=NVIC_GetPriority(SysTick_IRQn);  
+	#endif
 }
 
 
@@ -116,11 +155,15 @@ void estamosRTOS_start(){
 	
 	running=runqueue; // Initializing the running pointer
 	
-  SystemCoreClockUpdate();  // These two lines are implementation specific
-  //SysTick_Config(SystemCoreClock/1000);   // Generate interrupt evey 1 ms 
-  SysTick_Config(ESTAMOSRTOS_TICKS_TO_SCHEDULER);   // Generate interrupt at selected frequency
-  
-	
+	#ifdef MCU_STM32F303X8
+		SystemCoreClockUpdate();  // These two lines are implementation specific
+		//SysTick_Config(SystemCoreClock/1000);   // Generate interrupt evey 1 ms 
+		SysTick_Config(ESTAMOSRTOS_TICKS_TO_SCHEDULER);   // Generate interrupt at selected frequency
+  #elif defined MCU_SOMEOTHER
+    #error Must implement MCU-specific code
+  #else
+    #error Must implement MCU-specific code
+	#endif
 	
 	running->SP = running->buffer+STACK_SIZE; // Flush the firts task's stack
 	estamosRTOS_asm_launch();                 // Use the stack of the first task
@@ -139,40 +182,110 @@ void estamosRTOS_start(){
 //void estamosRTOS_scheduler(){
 //
 // C function that Performs the task switch. 
-// The SysTick_Handler switches stack pointer spaces
-// by moving the MSP to the fits task's allocated buffer.
-// The SysTick_Handler is implemented in estamosRTOS_asm.s	
+// The PendSV_Handler switches stack pointer spaces by moving the SP to the 
+// next task's allocated buffer.
+// The PendSV_Handler is implemented in estamosRTOS_asm.s	
 ////////////////////////////////////////////////////////////////////////////////
 
 void estamosRTOS_scheduler(){
-  if (yielding){
-		SysTick_Config(ESTAMOSRTOS_TICKS_TO_SCHEDULER);   // Restore original Tick frequency
-		yielding=0;
-	}
 	running=running->next; // running points to the next TCB
+	yielding=0;
+	#ifdef ESTAMOSRTOS_LOGIC_ANALYZER
+		sched=0;
+	#endif	
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// void SysTick_Handler()
+//
+// This function sets the PendSV interrupt and exits.
+// 
+////////////////////////////////////////////////////////////////////////////////
+
+void SysTick_Handler(){
+	#ifdef ESTAMOSRTOS_LOGIC_ANALYZER
+	  sched=1;
+	#endif
+  SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// void SVC_Handler_C(unsigned int * svc_args)
+//
+// C implementation of polymorphic custom SVC calls.
+// This function extracts the type of SVC call, technically the operand in the 
+// calling SVC instruction, and then allows the user to handle the custom 
+// as per function parameter definition.
+// 
+// These functions can also return values in registers. 
+// Here are some excellent resources:
+// http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dai0179b/ar01s02s07.html
+// http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0491c/BABJIGHA.html
+// 
+// Custom forms may be defined with the following syntax: 
+//  
+// void __svc(SVC_XX) svc_one(const char *string);
+// void __svc(SVC_XX) svc_one(void);
+// void __svc(SVC_XX) svc_one(const uint8_t my_num);
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void SVC_Handler_C(unsigned int * svc_args){
+	unsigned int svc_number;    /*    * Stack contains:    * r0, r1, r2, r3, r12, r14, the return address and xPSR    * First argument (r0) is svc_args[0]    */    
+	char *str;
+	#ifdef ESTAMOSRTOS_LOGIC_ANALYZER
+	  sched=1;
+	#endif
+	svc_number = ((char *)svc_args[6])[-2]; 
+	switch(svc_number){        
+		case SVC_KILL:            /* Handle SVC KILL */            
+		break;       
+		
+		case SVC_YIELD:            /* Handle SVC YIELD */            
+									SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+		break;         
+		
+		case SVC_MISC:            /* Handle SVC MISC */   
+			  str = (char *)(svc_args[0]);
+				volatile int i;
+				i=(int)str;
+		break;       
+		
+		default:            /* Unknown SVC */            
+		break;    
+	}
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // void estamosRTOS_yield()
 //
-// C function that yields the CPU to the scheduler
-// This is done in a suboptimal way: By setting the SysTick timer to go off
-// in a few cycles (about 100 ticks). This is done for two reasons:
+// C function that yields the CPU to the scheduler.
+// This is done in an optimal way: By calling the SVC handler to do the same 
+// as the SysTick handler.
 //
-//   1) This delay must be short enough to force the SysTick interrupt for the 
-//      scheduler to take control as soon as possible.
-//   2) This delay must be long enough to allow the scheduler to set the SysTick 
-//      back to its original frequency before it goes off again.
-//      
-// This delay is set in the ESTAMOSRTOS_TICK_TO_YIELD symbol.
+// A measure is taken to prevent double yielding in the unlikely event that the
+// SysTick goes off during the brief critical section, resulting in an unwanted 
+// first yield. 
 ////////////////////////////////////////////////////////////////////////////////
 
 void estamosRTOS_yield(){
-  SysTick_Config(ESTAMOSRTOS_TICKS_TO_YIELD);   // Generate interrupt very soon
-	yielding=1;
+	// Start of critical section
+	yielding=1; 
+	#ifdef MCU_STM32F303X8
+    SysTick_Config(ESTAMOSRTOS_TICKS_TO_SCHEDULER); // Restore original Tick frequency
+	#else
+    #error Must implement MCU-specific code
+	#endif
+	// End of critical section
+	if(yielding) // If systick didn't go off, then yield. The context switch resets yielding to 0.
+		svc_yield();  
 	while(yielding);
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright © 2017-2018, Eduardo Corpeño
