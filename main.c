@@ -19,10 +19,10 @@ uint8_t t1=0,t2=0,t3=0,t4=0;
 uint8_t iterations[4]={2,5,3,4};
 
 void task1(){
-  volatile unsigned int i=0, j=0, k=0;
+  volatile int i=0, j=0, k=0;
 	while(1){
 		t1=t1?0:1;
-		i=iterations[k++%4];
+		i=iterations[k++&0xf];
 		while(estamosRTOS_mutex_lock(&my_mutex)){
 			//TODO: Yield();
 			estamosRTOS_yield();
@@ -34,7 +34,7 @@ void task1(){
 		}
 		estamosRTOS_mutex_unlock(&my_mutex);
 		
-		i=iterations[k++%4]*980;
+		i=iterations[k++&0xf]*980;
 		while(i--){
 		  j=40-i*j;
 		  j=60-i*7;
@@ -44,7 +44,7 @@ void task1(){
 }
 
 void task2(){
-  volatile unsigned int i=0, j=0, k=0;
+  volatile int i=0, j=0, k=0;
 	while(1){
 		t2=t2?0:1;
 		i=20;
@@ -54,7 +54,7 @@ void task2(){
 		j=60-i*7;
 		i=j+70;
 		i=80;
-		i=iterations[k++%4];
+		i=iterations[k++&0xf];
 		while(estamosRTOS_mutex_lock(&my_mutex)){
 			estamosRTOS_yield();
 		}
@@ -65,7 +65,7 @@ void task2(){
 		}
 		estamosRTOS_mutex_unlock(&my_mutex);
 		
-		i=iterations[k++%4]*230;
+		i=iterations[k++&0xf]*230;
 		while(i--){
 		  j=40-i*j;
 		  j=60-i*7;
@@ -75,10 +75,10 @@ void task2(){
 }
 
 void task3(){
-  volatile unsigned int i=0, j=0, k=0;
+  volatile int i=0, j=0, k=0;
 	while(1){
 		t3=t3?0:1;
-		i=iterations[k++%4];
+		i=iterations[k++&0xf];
 		if(!estamosRTOS_mutex_lock(&my_mutex)){
 			while(i--){	
 				t3=t3?0:1;
@@ -98,10 +98,10 @@ void task3(){
 }
 
 void task4(){
-  volatile unsigned int i=0, j=0, k=0;
+  volatile int i=0, j=0, k=0;
 	while(1){
 		t4=t4?0:1;
-		i=iterations[k++%4];
+		i=iterations[k++&0xf];
 		if(!estamosRTOS_mutex_lock(&my_mutex)){
 			while(i--){	
 				t4=t4?0:1;

@@ -29,7 +29,8 @@
 // Uncomment the following line to enable debug mode
 // #define ESTAMOSRTOS_DEBUG
 // ... or the following line to only enable logic analyzer signals
-#define ESTAMOSRTOS_LOGIC_ANALYZER
+//#define ESTAMOSRTOS_LOGIC_ANALYZER
+
 
 // Specific MCU definition
 #ifndef MCU_STM32F303X8
@@ -66,11 +67,16 @@
 #define SVC_MISC  0x33
 
 
-#ifndef EXIT_SUCCESS
-  #define EXIT_SUCCESS 0
+#ifdef EXIT_SUCCESS
+  #define ESTAMOSRTOS_EXIT_SUCCESS EXIT_SUCCESS
+#else
+  #define ESTAMOSRTOS_EXIT_SUCCESS 0
 #endif
-#ifndef EXIT_FAILURE
-  #define EXIT_FAILURE 1
+
+#ifdef EXIT_FAILURE
+  #define ESTAMOSRTOS_EXIT_FAILURE EXIT_FAILURE
+#else
+  #define ESTAMOSRTOS_EXIT_FAILURE 1
 #endif
 
 

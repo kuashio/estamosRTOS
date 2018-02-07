@@ -46,7 +46,7 @@ estamosRTOS_asm_launch PROC
 ; The PendSV_Handler switches stack pointer spaces
 ; by moving the MSP (for now) to the next task's allocated buffer.						
 ;
-; This Handler code was almost entirely borrowed from Jon Valvano's RTOS code.
+; This Handler code was mostly borrowed from Jon Valvano's RTOS code.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 PendSV_Handler     PROC        ; R0-R3,R12,LR,PC,PSR saved by SysTick or other 
                                ; tail-chained interrupt/exception.
@@ -91,12 +91,12 @@ estamosRTOS_mutex_lock PROC
 	CMP 	R1, #0        ; 0 means success in STREX
 	BNE 	was_locked
 	
-	MOV 	R0, #EXIT_SUCCESS	
+	MOV 	R0, #ESTAMOSRTOS_EXIT_SUCCESS	
 	BX      LR                 ; Return success
 
 was_locked
 	CLREX
-	MOV 	R0, #EXIT_FAILURE
+	MOV 	R0, #ESTAMOSRTOS_EXIT_FAILURE
 	BX      LR                 ; Return failure
 	ENDP
 
