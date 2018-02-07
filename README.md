@@ -5,7 +5,7 @@ This Real Time Operating System started as a "why not?" project in an RTOS gradu
 
 ## Purpose
 estamosRTOS is not intended to compete with professional RTOSes like freeRTOS, or RTX. Instead, it's intended for education, so it was designed with a simple implementation, putting readability over efficiency.
-The purpose is to allowstudents to read the code and make modifications to it in order to understand the inner workings of the many elements of an RTOS.
+The purpose is to allow students to read the code and make modifications to it in order to understand the inner workings of the many elements of an RTOS.
     
 
 ## Components
@@ -13,7 +13,7 @@ Here's what estamosRTOS currently consists of:
 
  - A multitasking mechanism with a simple Round Robin scheduler.
  - Mutex support.
- - A fast-actiing yield function.
+ - A fast-acting yield function.
  - Interrupt support.
  - A System Call mechanism
 
@@ -25,12 +25,15 @@ Here's what estamosRTOS currently consists of:
 
 
 ## Files 
- - **`main.c`** - A demo applications with 4 threads and a mutex.
  - **`estamosRTOS.c`** - The C code for estamosRTOS.
  - **`estamosRTOS.h`** - Type definitions used by estamosRTOS.
  - **`estamosRTOS_MCU.h`** - Symbol definitions used by estamosRTOS.
  - **`estamosRTOS_asm.S`** - The assembly code for estamosRTOS.
- - **`estamosRTOS_signas.uvl`** - Logic analyzer signals used in `main.c`.
+ - **`estamosRTOS.uvoptx`**	- Keil uVision 5 project options file.
+ - **`estamosRTOS.uvprojx`** - Keil uVision 5 project file.
+ - **`main.c`** - A demo applications with 4 threads and a mutex.
+ - **`estamosRTOS_signals.uvl`** - Logic analyzer signals used in `main.c`.
+ 
 
 ## Adaptation Notes
 This project was developed in Keil uVision MDK v5.23, and tested on a [NUCLEO-F303K8](https://os.mbed.com/platforms/ST-Nucleo-F303K8/) platform, which runs on an STMicro ARM Cortex-M4 MCU.
@@ -40,7 +43,7 @@ There are several ways to customize estamosRTOS to meet your needs, such as Targ
 Here's a list of recommended customizations prior to attempting to implement estamosRTOS in your MCU:
 
  - To adapt the code for your own MCU (not the STM32), there are some lines of code you'll want to edit:
-    - `#define MCU_STM32F303X8` at the beginning of `estamosRTOS_MCU.h`. This line has to change to define a symbol for your MCU's exclusive pieces of code with `#ifdef` directives.
+    - `#define MCU_STM32F303X8` at the beginning of `estamosRTOS_MCU.h`. This line has to change to define a symbol for your MCU's exclusive pieces of code with `#ifdef` directives. Alternatively, you can define this symbol in the compiler settings dialog box.
     - Look for MCU_STM32F303X8 throughout `estamosRTOS.c`, `estamosRTOS.h`, and `estamosRTOS_MCU.h`, and add the appropriate pieces of code for your MCU's symbol.
     - These pieces of code include:
 		- Your MCU's .h file in the `#include` line
@@ -52,9 +55,9 @@ Here's a list of recommended customizations prior to attempting to implement est
 
  - The size of the private stack for your tasks is configurable with the **`ESTAMOSRTOS_STACK_SIZE`** symbol. You may define this in your own code, as it has an **`#ifndef`** guard. It is expressed in 4-byte entries, not in bytes, so the default value of 64 in that symbol means 256 bytes.
 
- - define **`ESTAMOSRTOS_DEBUG`** in your code to add debug information in your code. This includes pushing notable values to the registers in the initial stack frame (0x33333333 for R3 for example). You don't want this for production, as it means more code, but it's sometimes useful for debugging. Look for **`ESTAMOSRTOS_DEBUG`** in the code to learn more. 
+ - define **`ESTAMOSRTOS_DEBUG`** in your code to add debug information in your code. This includes pushing notable values to the registers in the initial stack frame (0x33333333 for R3 for example). You don't want this for production, as it means more code, but it's sometimes useful for debugging. Alternatively, you can define this symbol in the compiler settings dialog box. Look for **`ESTAMOSRTOS_DEBUG`** in the code to learn more. 
 
- - define **`ESTAMOSRTOS_LOGIC_ANALYZER`** in your code to add debug information in your code for the logic analyzer in Keil uVision's debugger to display. This mode is included in the Debug mode by default. Look for **`ESTAMOSRTOS_LOGIC_ANALYZER`** in the code to learn more. 
+ - define **`ESTAMOSRTOS_LOGIC_ANALYZER`** in your code to add debug information in your code for the logic analyzer in Keil uVision's debugger to display. This mode is included in the Debug mode by default. Alternatively, you can define this symbol in the compiler settings dialog box. Look for **`ESTAMOSRTOS_LOGIC_ANALYZER`** in the code to learn more. 
 
 
 ## Why the silly name?
