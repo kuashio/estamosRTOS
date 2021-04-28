@@ -84,7 +84,7 @@ void estamosRTOS_start(void);  // Launches the scheduler by:
 
 void estamosRTOS_asm_launch(void);  // Assembly function that Moves the Main Stack 
                                    // Pointer to the first task's allocated stack buffer.
-																	// This function is implemented in estamosRTOS_asm.s
+                                  // This function is implemented in estamosRTOS_asm.s
 																	 
 void estamosRTOS_scheduler(void);  // C function that Performs the task switch. 
                                   // The SysTick_Handler switches stack pointer spaces
