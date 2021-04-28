@@ -185,6 +185,7 @@ void estamosRTOS_start(){
 // The PendSV_Handler switches stack pointer spaces by moving the SP to the 
 // next task's allocated buffer.
 // The PendSV_Handler is implemented in estamosRTOS_asm.s	
+// Here's a nice explanation of the PendSV thing: https://youtu.be/tqRs5-Z8RRw
 ////////////////////////////////////////////////////////////////////////////////
 
 void estamosRTOS_scheduler(){
@@ -201,6 +202,7 @@ void estamosRTOS_scheduler(){
 //
 // This function sets the PendSV interrupt and exits.
 // 
+// Here's a nice explanation of the PendSV thing: https://youtu.be/tqRs5-Z8RRw
 ////////////////////////////////////////////////////////////////////////////////
 
 void SysTick_Handler(){

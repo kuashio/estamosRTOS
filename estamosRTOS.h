@@ -87,9 +87,12 @@ void estamosRTOS_asm_launch(void);  // Assembly function that Moves the Main Sta
                                   // This function is implemented in estamosRTOS_asm.s
 																	 
 void estamosRTOS_scheduler(void);  // C function that Performs the task switch. 
-                                  // The SysTick_Handler switches stack pointer spaces
-                                 // by moving the MSP to the next task's allocated buffer.
-                                // The SysTick_Handler is implemented in estamosRTOS_asm.s																 
+                                  // The SysTick_Handler triggers the PendSV interrupt, 
+                                 // which switches stack pointer spaces
+                                // by moving the MSP to the next task's allocated buffer.
+                               // The SysTick_Handler is implemented in estamosRTOS.c 
+                              // Here's a nice explanation of the PendSV thing: 
+                             // https://youtu.be/tqRs5-Z8RRw                               
 
 uint32_t estamosRTOS_mutex_lock(estamosRTOS_mutex *);  // Assembly function that locks a mutex. 
 

@@ -47,6 +47,8 @@ estamosRTOS_asm_launch PROC
 ; by moving the MSP (for now) to the next task's allocated buffer.						
 ;
 ; This Handler code was mostly borrowed from Jon Valvano's RTOS code.
+;
+; Here's a nice explanation of the PendSV thing: https://youtu.be/tqRs5-Z8RRw
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 PendSV_Handler     PROC        ; R0-R3,R12,LR,PC,PSR saved by SysTick or other 
                                ; tail-chained interrupt/exception.
