@@ -165,7 +165,7 @@ void estamosRTOS_start(){
     #error Must implement MCU-specific code
 	#endif
 	
-	running->SP = running->buffer+STACK_SIZE; // Flush the firts task's stack
+	running->SP = running->buffer+STACK_SIZE; // Flush the first task's stack
 	estamosRTOS_asm_launch();                 // Use the stack of the first task
   running->func();                          // Call the first task's function
 	

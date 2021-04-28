@@ -50,9 +50,10 @@ estamosRTOS_asm_launch PROC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 PendSV_Handler     PROC        ; R0-R3,R12,LR,PC,PSR saved by SysTick or other 
                                ; tail-chained interrupt/exception.
-;    CPSID   I                  ; Prevent interrupt during switch
+    CPSID   I                  ; Prevent interrupt during switch
     PUSH    {R4-R11}           ; Save remaining regs r4-11
-    LDR     R0, =running       ; R0 = pointer to running, old thread
+    CLREX                      ; Invalidate the Exclusive Monitor for last LDREX 
+	LDR     R0, =running       ; R0 = pointer to running, old thread
     LDR     R1, [R0]           ; R1 = running
     STR     SP, [R1]           ; Save SP into TCB
     PUSH    {R0,LR}
@@ -68,7 +69,7 @@ PendSV_Handler     PROC        ; R0-R3,R12,LR,PC,PSR saved by SysTick or other
 ;#endif
 	
     POP     {R4-R11}           ; restore regs r4-11
-;    CPSIE   I                  ; tasks run with interrupts enabled
+    CPSIE   I                  ; tasks run with interrupts enabled
     BX      LR                 ; restore R0-R3,R12,LR,PC,PSR
 
 	ENDP

@@ -49,7 +49,7 @@ struct TCB_NODE{
 typedef struct TCB_NODE TCB;
 typedef TCB task;
 
-typedef uint32_t estamosRTOS_mutex;
+typedef uint32_t estamosRTOS_mutex;  // TODO: Consider uint8_t
 
 /*
 // These two symbols need to be defined in estamosRTOS_asm.s with the same values!!!!
@@ -77,7 +77,7 @@ void estamosRTOS_add_task(task *, t_funcPtr);  // Adds a task to the runqueue
 
 void estamosRTOS_start(void);  // Launches the scheduler by: 
                               //      - Wrapping the runqueue around 
-                             //       - Launching the SysTick interupt 
+                             //       - Launching the SysTick interrupt 
                             //        - Moving the Main Stack Pointer to the first task's
                            //           allocated stack buffer
                           //          - Calling the first task's function
@@ -88,7 +88,7 @@ void estamosRTOS_asm_launch(void);  // Assembly function that Moves the Main Sta
 																	 
 void estamosRTOS_scheduler(void);  // C function that Performs the task switch. 
                                   // The SysTick_Handler switches stack pointer spaces
-																 // by moving the MSP to the fits task's allocated buffer.
+																 // by moving the MSP to the next task's allocated buffer.
                                 // The SysTick_Handler is implemented in estamosRTOS_asm.s																 
 
 uint32_t estamosRTOS_mutex_lock(estamosRTOS_mutex *);  // Assembly function that locks a mutex. 
