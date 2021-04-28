@@ -88,7 +88,7 @@ void estamosRTOS_asm_launch(void);  // Assembly function that Moves the Main Sta
 																	 
 void estamosRTOS_scheduler(void);  // C function that Performs the task switch. 
                                   // The SysTick_Handler switches stack pointer spaces
-																 // by moving the MSP to the next task's allocated buffer.
+                                 // by moving the MSP to the next task's allocated buffer.
                                 // The SysTick_Handler is implemented in estamosRTOS_asm.s																 
 
 uint32_t estamosRTOS_mutex_lock(estamosRTOS_mutex *);  // Assembly function that locks a mutex. 
