@@ -18,6 +18,7 @@ Here's what estamosRTOS currently consists of:
  - A System Call mechanism
 
 ## To Do 
+ - Mutex ownership.
  - Semaphore support.
  - Inter-Task Communication mechanisms such as message queues, signals, pipes, sockets, etc.
  - Services
